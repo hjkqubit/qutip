@@ -656,3 +656,13 @@ def test_mixed_equals_merged(improved_sampling, p):
         sum(merged_result.runs_weights + merged_result.deterministic_weights)
         == pytest.approx(1.)
     )
+
+
+@pytest.mark.parametrize("improved_sampling", [True, False])
+def test_non_normalized_mixture(improved_sampling):
+    # mcsolve should accept a density matrix with trace less than one
+    # The state below has trace 0.75
+    initial_state = 0.5 * qutip.fock_dm(2, 0) + 0.25 * qutip.fock_dm(2, 1)
+    result = qutip.mcsolve(qutip.sigmaz(), initial_state, np.linspace(0, 1, 100), [qutip.sigmam()], ntraj=10, options={'improved_sampling': improved_sampling})
+
+    assert result.num_trajectories == 10
