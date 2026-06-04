@@ -132,14 +132,19 @@ jobs:
             pytest-extra-options: "-W ignore:dep_util:DeprecationWarning -W \"ignore:The 'renderer' parameter of do_3d_projection\""
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: conda-incubator/setup-miniconda@v3
+      - uses: actions/checkout@v6
+      - uses: conda-incubator/setup-miniconda@v4
         if: matrix.os != 'windows-11-arm'
         # Currently miniconda doesn't support window-11 arms
         with:
           auto-update-conda: true
           python-version: ${{ matrix.python-version }}
           channels: ${{ matrix.condaforge == 1 && 'conda-forge' || 'defaults' }}
+
+      - name: Install pip
+        if: matrix.os != 'windows-11-arm'
+        shell: bash -l {0}
+        run: conda install pip -y -n test
 
       # TODO remove this once conda supports windows arm
       - uses: actions/setup-python@v6
@@ -185,7 +190,7 @@ jobs:
             conda install --channel conda-forge "openmpi>=5.0" mpi4py
           fi
           if [[ "${{ matrix.oldcython }}" ]]; then
-            python -m pip install cython==0.29.36 filelock matplotlib==3.5
+            python -m pip install cython==0.29.36 filelock matplotlib==3.6
           else
             python -m pip install cython filelock
           fi
@@ -291,7 +296,7 @@ jobs:
     name: Verify Towncrier entry added
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
